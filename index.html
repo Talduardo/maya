@@ -11,77 +11,88 @@
 </head>
 <body>
 
-    <header id="main-header">
-        <a href="#" class="brand-area" onclick="app.resetAll()">
-            <img src="assets/logo_maya_bay.jpeg" alt="Logo Maya Bay">
-            <h1>Maya Bay</h1>
-        </a>
+    <div id="site-content">
+        
+        <header id="main-header">
+            <a href="#" class="brand-area" onclick="app.resetAll()">
+                <img src="assets/logo_maya_bay.jpeg" alt="Logo Maya Bay">
+                <h1>Maya Bay</h1>
+            </a>
 
-       <nav>
-            <ul class="nav-list">
-                <li class="nav-item">
-                    <a href="#loja" class="nav-link" onclick="app.filter('feminino')">Feminino</a>
-                    <div class="dropdown">
-                        <a href="#loja" onclick="app.filter('feminino', 'casual')">Casual Chic</a>
-                        <a href="#loja" onclick="app.filter('feminino', 'fitness')">Fitness</a>
-                        <a href="#loja" onclick="app.filter('feminino', 'vestidos')">Vestidos</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <a href="#loja" class="nav-link" onclick="app.filter('masculino')">Masculino</a>
-                    <div class="dropdown">
-                        <a href="#loja" onclick="app.filter('masculino', 'casual')">Dia a Dia</a>
-                        <a href="#loja" onclick="app.filter('masculino', 'moletom')">Inverno</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <a href="#loja" class="nav-link" onclick="app.filter('infantil')">Infantil</a>
-                    <div class="dropdown">
-                        <a href="#loja" onclick="app.filter('infantil', 'casual')">Passeio</a>
-                    </div>
-                </li>
-            </ul>
-        </nav>
+            <nav>
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="#loja" class="nav-link" onclick="app.filter('feminino')">Feminino</a>
+                        <div class="dropdown">
+                            <a href="#loja" onclick="app.filter('feminino', 'casual')">Casual Chic</a>
+                            <a href="#loja" onclick="app.filter('feminino', 'fitness')">Fitness</a>
+                            <a href="#loja" onclick="app.filter('feminino', 'vestidos')">Vestidos</a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#loja" class="nav-link" onclick="app.filter('masculino')">Masculino</a>
+                        <div class="dropdown">
+                            <a href="#loja" onclick="app.filter('masculino', 'casual')">Dia a Dia</a>
+                            <a href="#loja" onclick="app.filter('masculino', 'moletom')">Inverno</a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#loja" class="nav-link" onclick="app.filter('infantil')">Infantil</a>
+                        <div class="dropdown">
+                            <a href="#loja" onclick="app.filter('infantil', 'casual')">Passeio</a>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
 
-        <div class="icons-area">
-            <div class="icon-btn" onclick="app.toggleSearch()" title="Buscar"><i class="fa-solid fa-magnifying-glass"></i></div>
+            <div class="icons-area">
+                <div class="icon-btn" onclick="app.toggleSearch()" title="Buscar">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
             
-            <div class="icon-btn" id="user-btn" onclick="app.toggleAuth()" title="Minha Conta">
-                <i class="fa-regular fa-user"></i>
-                <span id="user-greeting" style="display:none; font-size: 0.7rem; margin-left: 5px;"></span>
+                <div class="user-menu-container">
+                    <div class="icon-btn" id="user-btn" onclick="app.handleUserIconClick()" title="Minha Conta">
+                        <i class="fa-regular fa-user"></i>
+                    </div>
+
+                    <div id="user-dropdown" class="user-dropdown">
+                        <p id="user-greeting">Olá, Visitante</p>
+                        <div class="divider-small"></div>
+                        <button onclick="app.logout()" class="btn-logout">SAIR (LOGOUT)</button>
+                    </div>
+                </div>
+
+                <div class="icon-btn" onclick="app.toggleCart()" title="Sacola">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span id="cart-count">0</span>
+                </div>
             </div>
 
-            <div class="icon-btn" onclick="app.toggleCart()" title="Sacola">
-                <i class="fa-solid fa-bag-shopping"></i>
-                <span id="cart-count">0</span>
+            <div class="search-popup" id="search-popup">
+                <input type="text" class="search-input" id="search-input" placeholder="Buscar...">
+                <button class="search-btn-action" onclick="app.performSearch()"><i class="fa-solid fa-arrow-right"></i></button>
             </div>
-        </div>
+        </header>
 
-        <div class="search-popup" id="search-popup">
-            <input type="text" class="search-input" id="search-input" placeholder="Buscar...">
-            <button class="search-btn-action" onclick="app.performSearch()"><i class="fa-solid fa-arrow-right"></i></button>
-        </div>
-    </header>
+        <section class="hero">
+            <div class="hero-content">
+                <h2>Essência & Elegância</h2>
+                <p>Vista a liberdade de ser você mesmo</p>
+                <a href="#loja" class="btn-hero" onclick="app.resetAll()">Ver Coleção</a>
+            </div>
+        </section>
 
-    <section class="hero">
-        <div class="hero-content">
-            <h2>Essência & Elegância</h2>
-            <p>Vista a liberdade de ser você mesmo</p>
-            <a href="#loja" class="btn-hero" onclick="app.resetAll()">Ver Coleção</a>
-        </div>
-    </section>
+        <main class="container" id="loja">
+            <div class="section-header reveal-element">
+                <h3 id="page-title">Curadoria Exclusiva</h3>
+                <p id="page-subtitle">Explorando o melhor do design atemporal</p>
+            </div>
+            <div class="grid" id="product-grid">
+                <div class="loading-spinner">Carregando coleção...</div>
+            </div>
+        </main>
 
-    <main class="container" id="loja">
-        <div class="section-header reveal-element">
-            <h3 id="page-title">Curadoria Exclusiva</h3>
-            <p id="page-subtitle">Explorando o melhor do design atemporal</p>
-        </div>
-        <div class="grid" id="product-grid">
-            <div class="loading-spinner">Carregando coleção...</div>
-        </div>
-    </main>
-
-    <div class="modal-wrap" id="modal-wrap">
+    </div> <div class="modal-wrap" id="modal-wrap">
         <div class="modal-box">
             <div class="modal-left"><img id="m-img" src="" alt=""></div>
             <div class="modal-right">
@@ -111,13 +122,18 @@
 
             <form id="form-login" class="auth-form active" onsubmit="app.handleLogin(event)">
                 <div class="input-group">
-                    <label>E-mail</label>
-                    <input type="email" id="login-email" required placeholder="seu@email.com">
+                    <label for="login-email">E-mail</label>
+                    <input type="email" id="login-email" required placeholder="seu@email.com" autocomplete="username">
                 </div>
+
                 <div class="input-group">
-                    <label>Senha</label>
-                    <input type="password" id="login-pass" required placeholder="••••••••">
+                    <label for="login-pass">Senha</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="login-pass" required placeholder="••••••••" autocomplete="current-password">
+                        <i class="fa-regular fa-eye toggle-pass" onclick="app.togglePasswordVisibility('login-pass', this)"></i>
+                    </div>
                 </div>
+
                 <div class="auth-actions">
                     <span onclick="app.switchAuth('forgot')" class="link-action">Esqueceu a senha?</span>
                 </div>
@@ -127,33 +143,35 @@
 
             <form id="form-register" class="auth-form" onsubmit="app.handleRegister(event)">
                 <div class="input-group">
-                    <label>E-mail</label>
-                    <input type="email" id="reg-email" required placeholder="seu@email.com">
+                    <label for="reg-email">E-mail</label>
+                    <input type="email" id="reg-email" required placeholder="seu@email.com" autocomplete="username">
                 </div>
                 <div class="input-group">
-                    <label>Senha</label>
-                    <input type="password" id="reg-pass" required placeholder="Mínimo 6 caracteres">
+                    <label for="reg-pass">Senha</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="reg-pass" required placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+                        <i class="fa-regular fa-eye toggle-pass" onclick="app.togglePasswordVisibility('reg-pass', this)"></i>
+                    </div>
                 </div>
                 <div class="input-group">
-                    <label>Confirmar Senha</label>
-                    <input type="password" id="reg-pass-conf" required placeholder="••••••••">
+                    <label for="reg-pass-conf">Confirmar Senha</label>
+                    <div class="password-wrapper">
+                    <input type="password" id="reg-pass-conf" required placeholder="••••••••" autocomplete="new-password">
+                    <i class="fa-regular fa-eye toggle-pass" onclick="app.togglePasswordVisibility('reg-pass-conf', this)"></i>
                 </div>
                 <div class="input-group">
-                    <label>Chave de Convite (Opcional)</label>
-                    <input type="password" id="reg-admin-key" placeholder="Apenas para Staff Maya Bay">
+                    <label for="reg-admin-key">Chave de Admin (Opcional)</label>
+                    <input type="password" id="reg-admin-key" placeholder="Chave Staff Maya Bay">
                 </div>
-
                 <button type="submit" class="btn-black">CRIAR CONTA</button>
                 <p class="auth-footer">Já é cliente? <span onclick="app.switchAuth('login')" class="link-action">Entrar</span></p>
             </form>
 
             <form id="form-forgot" class="auth-form" onsubmit="app.handleForgot(event)">
-                <p style="font-size: 0.9rem; margin-bottom: 20px; color: #666;">
-                    Digite seu e-mail e enviaremos um link para redefinir sua senha.
-                </p>
+                <p style="font-size: 0.9rem; margin-bottom: 20px; color: #666;">Digite seu e-mail e enviaremos um link de recuperação.</p>
                 <div class="input-group">
-                    <label>E-mail Cadastrado</label>
-                    <input type="email" id="forgot-email" required>
+                    <label for="forgot-email">E-mail Cadastrado</label>
+                    <input type="email" id="forgot-email" required autocomplete="email">
                 </div>
                 <button type="submit" class="btn-black">ENVIAR LINK</button>
                 <p class="auth-footer"><span onclick="app.switchAuth('login')" class="link-action">Voltar ao Login</span></p>
@@ -184,17 +202,15 @@
                         <div class="input-group"><label>Sub-categoria</label><input type="text" id="p-sub" placeholder="ex: Vestidos"></div>
                         <div class="input-group" style="grid-column: span 2;">
                             <label>URL da Imagem</label>
-                            <input type="text" id="p-img-url" required placeholder="ex: img/vestido.jpg">
+                            <input type="text" id="p-img-url" required placeholder="ex: assets/foto.jpg">
                         </div>
                     </div>
                     <button type="submit" class="btn-black">CADASTRAR PRODUTO</button>
                 </form>
 
                 <div class="divider"></div>
-
                 <h4>Produtos Atuais</h4>
-                <div id="admin-product-list" class="admin-list">
-                    </div>
+                <div id="admin-product-list" class="admin-list"></div>
             </div>
         </div>
     </div>
@@ -211,7 +227,7 @@
         </div>
     </div>
 
-    <div id="btn-open-admin" class="admin-fab" onclick="app.toggleAdmin(true)" style="display: none;">
+    <div id="admin-btn" class="admin-fab" onclick="app.toggleAdmin(true)" style="display: none;">
         <i class="fa-solid fa-screwdriver-wrench"></i>
     </div>
 
