@@ -13,7 +13,7 @@ const app = {
         selectedSize: null,
         user: null, 
         token: localStorage.getItem('mayabay_token'),
-        isAdmin: localStorage.getItem('mayabay_is_admin') === 'true' // Persistência do Admin
+        isAdmin: false // Será definido pelo checkAuth
     },
 
     init: async () => {
@@ -23,122 +23,224 @@ const app = {
         app.setupEventListeners();
     },
 
-    // --- AUTENTICAÇÃO E SEGURANÇA ---
-
-    checkAuth: () => {
+    // --- 1. FUNÇÃO DE DECISÃO DO ÍCONE ---
+    handleUserIconClick: () => {
+        // Se o usuário está logado (tem token)
         if (app.state.token) {
-            try {
-                // Decodifica token (Payload base64)
-                const payload = JSON.parse(atob(app.state.token.split('.')[1]));
-                const userEmail = payload.sub;
-                
-                // Se o token expirou (opcional, validação simples)
-                if (Date.now() >= payload.exp * 1000) throw new Error("Token expirado");
-
-                app.state.user = { email: userEmail, name: userEmail.split('@')[0] };
-                app.updateUserUI(true);
-            } catch (e) {
-                console.error("Sessão inválida:", e);
-                app.logout();
+            const dropdown = document.getElementById('user-dropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('active');
             }
+        } else {
+            // Se não está logado, abre o modal de login
+            app.toggleAuth(true);
         }
     },
 
+    // --- 2. CONTROLE DO MODAL DE LOGIN ---
     toggleAuth: (forceState = null) => {
         const modal = document.getElementById('auth-modal-wrap');
-        const isLogged = !!app.state.user;
-
-        if (isLogged && forceState !== false) {
-            if(confirm(`Deseja sair da conta de ${app.state.user.name}?`)) app.logout();
-            return;
-        }
+        if (!modal) return;
 
         if (forceState === true) modal.style.display = 'flex';
         else if (forceState === false) modal.style.display = 'none';
         else modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
         
-        if(modal.style.display === 'flex') app.switchAuth('login');
+        if (modal.style.display === 'flex') app.switchAuth('login');
+    },
+
+    // -- 2.1 Função para ver a senha (toggle)
+    togglePasswordVisibility: (inputId, iconElement) => {
+        const input = document.getElementById(inputId);
+
+        if (input.type === "password") {
+            input.type = "text";
+            iconElement.classList.remove("fa-eye");
+            iconElement.classList.add("fa-eye-slash");
+        } else {
+            input.type = "password";
+            iconElement.classList.remove("fa-eye-slash");
+            iconElement.classList.add("fa-eye");
+        }
+    },
+    
+    // --- 3. VERIFICAÇÃO DE SESSÃO (JWT) ---
+    checkAuth: () => {
+        const token = localStorage.getItem('mayabay_token');
+
+        if (!token) {
+            app.resetAuthState();
+            return;
+        }
+
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            
+            // Verifica expiração
+            if (Date.now() >= payload.exp * 1000) {
+                app.logout();
+                return;
+            }
+
+            app.state.token = token;
+            app.state.isAdmin = payload.is_admin === true;
+            app.state.user = payload.sub; 
+
+            // Atualiza Interface: Ícone
+            const icon = document.querySelector('#user-btn i');
+            if (icon) icon.className = 'fa-solid fa-user-check';
+
+            // Atualiza Interface: Nome no Dropdown
+            const greeting = document.getElementById('user-greeting');
+            if (greeting) {
+                const name = payload.sub.split('@')[0];
+                greeting.innerText = `Olá, ${name.charAt(0).toUpperCase() + name.slice(1)}`;
+            }
+
+            // Atualiza Interface: Botão Admin
+            const adminBtn = document.getElementById('admin-btn');
+            if (adminBtn) adminBtn.style.display = app.state.isAdmin ? 'flex' : 'none';
+
+        } catch (error) {
+            console.error("Token inválido:", error);
+            app.logout();
+        }
+    },
+
+    // --- 4. SAIR DA CONTA ---
+    logout: () => {
+        localStorage.removeItem('mayabay_token');
+        localStorage.removeItem('mayabay_is_admin');
+        app.resetAuthState();
+        alert("Sessão encerrada.");
+        location.reload(); 
+    },
+
+    resetAuthState: () => {
+        app.state.token = null;
+        app.state.isAdmin = false;
+        app.state.user = null;
+        const icon = document.querySelector('#user-btn i');
+        if (icon) icon.className = 'fa-regular fa-user';
     },
 
     switchAuth: (screen) => {
         document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-        document.getElementById(`form-${screen}`).classList.add('active');
+        const targetForm = document.getElementById(`form-${screen}`);
+        if (targetForm) targetForm.classList.add('active');
     },
+    
+    // ... restante do código (fetchProducts, render, etc)
 
     handleLogin: async (e) => {
         e.preventDefault();
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-pass').value;
+
+        // 1. Pega os dados e limpa
+        const emailField = document.getElementById('login-email');
+        const passwordField = document.getElementById('login-pass');
         const btn = e.target.querySelector('button');
 
-        btn.innerText = "Verificando..."; btn.disabled = true;
+        const email = emailField.value;
+        const password = passwordField.value;
+
+        btn.innerText = "VERIFICANDO..."; 
+        btn.disabled = true;
 
         try {
             const res = await fetch(`${API_URL}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ email, password }) // Envia como JSON
             });
 
             const data = await res.json();
-            if (!res.ok) throw new Error(data.detail || "Erro ao entrar");
+            
+            if (!res.ok) throw new Error(data.detail || "Erro no login");
 
-            // Salva Token e Status Admin
+            // 1. Salva no navegador
             localStorage.setItem('mayabay_token', data.access_token);
             localStorage.setItem('mayabay_is_admin', data.is_admin);
             
+            // 2. Atualiza o estado da aplicação
             app.state.token = data.access_token;
-            app.state.isAdmin = data.is_admin;
+            app.state.isAdmin = data.is_admin === true;
             
-            app.checkAuth();
+           // 3. Limpeza de segurança: Remove os dados dos campos de texto
+            emailField.value = "";
+            passwordField.value = "";
+
+            // 4. Fecha o modal de login
             app.toggleAuth(false);
-            alert(`Bem-vindo de volta!`);
+
+            // 5. Atualiza a interface do usuário
+            app.checkAuth();
             
-            // Recarrega para aplicar UI de Admin se necessário
-            if(app.state.isAdmin) window.location.reload();
+            alert("Login realizado com sucesso!");
 
         } catch (error) {
             alert(error.message);
         } finally {
-            btn.innerText = "ENTRAR"; btn.disabled = false;
+            btn.innerText = "ENTRAR";
+            btn.disabled = false;
         }
     },
 
     handleRegister: async (e) => {
         e.preventDefault();
+        
         const email = document.getElementById('reg-email').value;
         const password = document.getElementById('reg-pass').value;
         const confirmPass = document.getElementById('reg-pass-conf').value;
-        const adminKey = document.getElementById('reg-admin-key').value; // Chave secreta
+        const adminKey = document.getElementById('reg-admin-key').value;
 
+        // Validações básicas antes de enviar
         if (password !== confirmPass) return alert("As senhas não coincidem.");
+        if (!email || !password) return alert("Preencha todos os campos obrigatórios.");
+        if (password !== confirmPass) return alert("As senhas não coincidem.");
+        if (password.length < 6) return alert("A senha deve ter no mínimo 6 caracteres.");
 
         try {
+            console.log("Enviando dados para o servidor...", { email, admin_key: adminKey });
+
             const res = await fetch(`${API_URL}/register`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password, admin_key: adminKey })
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    email: email, 
+                    password: password, 
+                    admin_key: adminKey || null 
+                })
             });
-            
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.detail);
 
-            alert("Conta criada! " + (data.is_admin ? "Você é um Administrador." : ""));
+            const data = await res.json();
+            
+            if (!res.ok) {
+                // Se o erro for 422, o Pydantic do Python rejeitou os dados
+                console.error("Erro do Servidor (Detalhes):", data);
+                throw new Error(data.detail || "Erro ao criar conta.");
+            }
+
+            alert(data.is_admin ? "Conta STAFF criada!" : "Conta criada com sucesso!");
             app.switchAuth('login');
 
         } catch (error) {
-            alert(error.message);
+            console.error("Erro na requisição:", error);
+            alert("Não foi possível registrar: " + error.message);
         }
     },
 
     handleForgot: (e) => {
         e.preventDefault();
-        alert("Link de recuperação enviado (simulação).");
+        alert("Um link de recuperação foi enviado para o seu e-mail.");
         app.switchAuth('login');
     },
 
     logout: () => {
-        localStorage.clear();
+        localStorage.removeItem('mayabay_token');
+        localStorage.removeItem('mayabay_is_admin');
         app.state.user = null;
         app.state.token = null;
         app.state.isAdmin = false;
@@ -146,33 +248,73 @@ const app = {
     },
 
     updateUserUI: (isLogged) => {
-        const userBtn = document.getElementById('user-btn');
-        const greeting = document.getElementById('user-greeting');
-        const icon = userBtn.querySelector('i');
-        const adminBtn = document.getElementById('btn-open-admin');
-
-        if (isLogged) {
-            icon.classList.remove('fa-user'); icon.classList.add('fa-user-check');
+    const userBtn = document.getElementById('user-btn');
+    const greeting = document.getElementById('user-greeting');
+    // Busca o botão pelo ID correto
+    const adminBtn = document.getElementById('admin-btn'); 
+    
+    if (isLogged && app.state.user) {
+        // Lógica do Usuário
+        if (userBtn) {
+            const icon = userBtn.querySelector('i');
+            if(icon) {
+                icon.classList.remove('fa-user');
+                icon.classList.add('fa-user-check');
+            }
+            userBtn.title = "Sair (Logout)";
+        }
+        
+        if (greeting) {
             greeting.style.display = 'inline';
             greeting.innerText = `Olá, ${app.state.user.name}`;
-            userBtn.title = "Sair";
-            
-            // Mostra botão de admin APENAS se for admin
-            if (adminBtn) adminBtn.style.display = app.state.isAdmin ? 'flex' : 'none';
-        } else {
-            icon.classList.add('fa-user'); icon.classList.remove('fa-user-check');
-            greeting.style.display = 'none';
-            userBtn.title = "Entrar";
-            if (adminBtn) adminBtn.style.display = 'none';
         }
-    },
+
+        // Lógica do Admin (O Pulo do Gato)
+        if (adminBtn) {
+            if (app.state.isAdmin === true) {
+                adminBtn.style.display = 'flex'; // Mostra o botão
+            } else {
+                adminBtn.style.display = 'none'; // Esconde
+            }
+        }
+
+    } else {
+        // Estado Deslogado
+        if (userBtn) {
+            const icon = userBtn.querySelector('i');
+            if(icon) {
+                icon.classList.add('fa-user');
+                icon.classList.remove('fa-user-check');
+            }
+            userBtn.title = "Entrar";
+        }
+        if (greeting) greeting.style.display = 'none';
+        
+        // Garante que o botão admin suma ao deslogar
+        if (adminBtn) adminBtn.style.display = 'none';
+    }
+},
 
     // --- GESTÃO DE PRODUTOS (ADMINISTRAÇÃO) ---
 
-    toggleAdmin: (state) => {
+    // --- PAINEL DE ADMINISTRAÇÃO ---
+
+    toggleAdmin: (show) => {
         const modal = document.getElementById('admin-modal-wrap');
-        modal.style.display = state ? 'flex' : 'none';
-        if(state) app.renderAdminList();
+        // Pegamos o body para adicionar a classe de controle
+        const body = document.body;
+
+        if (show) {
+            // ABRIR
+            modal.style.display = 'flex';
+            // Adiciona a classe que desfoca o fundo
+            body.classList.add('admin-active'); 
+        } else {
+            // FECHAR
+            modal.style.display = 'none';
+            // Remove a classe, voltando o site ao normal
+            body.classList.remove('admin-active');
+        }
     },
 
     renderAdminList: () => {
@@ -250,13 +392,30 @@ const app = {
 
     render: (list, title) => {
         const grid = document.getElementById('product-grid');
-        document.getElementById('page-title').innerText = title;
-        
+        const pageTitle = document.getElementById('page-title');
+
+        if (pageTitle) pageTitle.innerText = title;
+
+
+        // Se a liste estiver vazia, mostramos o "Empty Sate" elegante
         if (list.length === 0) {
-            grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;">Nenhum item encontrado.</p>';
+            grid.innerHTML = `
+                <div class="empty-results reveal-element">
+                    <div class="empty-icon">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <h3>Busca sem resultados</h3>
+                    <p>Não encontramos itens correspondentes à sua procura. <br> Que tal explorar nossa curadoria completa?</p>
+                    <button class="btn-black" onclick="app.resetAll()" style="margin-top: 25px; min-width: 200px;">
+                        Veja Toda a Curadoria
+                    </button>
+                </div>
+            `;
+            app.initScrollReveal(); // Para animar a mensagem de "Busca sem resultados"
             return;
         }
 
+        // Se houver produtos, mostramos a vitrine
         grid.innerHTML = list.map(p => `
             <div class="card reveal-element" onclick="app.openModal(${p.id})">
                 <div class="card-img">
@@ -379,12 +538,39 @@ const app = {
     // --- UTILITÁRIOS ---
 
     setupEventListeners: () => {
-        window.onclick = (e) => {
-            if (e.target == document.getElementById('modal-wrap')) app.closeModal();
-            if (e.target == document.getElementById('auth-modal-wrap')) app.toggleAuth(false);
-            if (e.target == document.getElementById('admin-modal-wrap')) app.toggleAdmin(false);
-        };
-        app.initScrollReveal();
+        // Usamos addEventListener para não sobrescrever outros eventos globais
+        window.addEventListener('click', (e) => {
+            
+            // 1. FECHAR MODAIS (Click fora da caixa branca)
+            if (e.target === document.getElementById('modal-wrap')) app.closeModal();
+            if (e.target === document.getElementById('auth-modal-wrap')) app.toggleAuth(false);
+            if (e.target === document.getElementById('admin-modal-wrap')) app.toggleAdmin(false);
+
+            // 2. FECHAR MENU DE USUÁRIO (Click fora do menu ou do ícone)
+            const dropdown = document.getElementById('user-dropdown');
+            const userBtn = document.getElementById('user-btn');
+
+            // Se o menu estiver aberto...
+            if (dropdown && dropdown.classList.contains('active')) {
+                // ...e o clique NÃO foi dentro do botão nem dentro do próprio menu:
+                if (!userBtn.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            }
+
+            // --- NOVO: Capturar o ENTER na busca ---
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    app.performSearch();
+                }
+            });
+        }   
+        });
+
+        // Inicializa as animações de entrada
+        if (app.initScrollReveal) app.initScrollReveal();
     },
 
     initScrollReveal: () => {
@@ -394,17 +580,40 @@ const app = {
         document.querySelectorAll('.reveal-element').forEach(el => observer.observe(el));
     },
 
-    toggleSearch: () => document.getElementById('search-popup').classList.toggle('active'),
+    toggleSearch: () =>{
+        const popup = document.getElementById('search-popup');
+        popup.classList.toggle('active');
+        if (popup.classList.contains('active')) {
+            document.getElementById('search-input').focus();
+        }
+    },
     
     performSearch: () => {
-        const term = document.getElementById('search-input').value.toLowerCase();
-        const filtered = app.state.allProducts.filter(p => p.name.toLowerCase().includes(term));
-        app.render(filtered, `Busca: "${term}"`);
-        app.toggleSearch();
+        const input = document.getElementById('search-input');
+        const term = input.value.toLowerCase().trim();
+
+        if (term !== "") {
+            const filtered = app.state.allProducts.filter(p =>
+                p.name.toLowerCase().includes(term) ||
+                p.category.toLowerCase().includes(term)
+            );
+            app.render(filtered, `Resultados para "${term}"`);
+
+            // Direciona para a seção de rola a página até a seção da loja
+            const lojaSection = document.getElementById('loja');
+            if (lojaSection) {
+                setTimeout(() => {
+                    lojaSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
+            app.toggleSearch();
+            input.value = ''; // Limpa o campo de busca para a próxima vez
+        }
     },
     
     filter: (cat) => {
-        app.render(app.state.allProducts.filter(p => p.category === cat), cat.toUpperCase());
+        const filtered = app.state.allProducts.filter(p => p.category === cat);
+        app.render(filtered, cat.toUpperCase()); 
         document.getElementById('loja').scrollIntoView({behavior:'smooth'});
     },
 
