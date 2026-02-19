@@ -14,12 +14,21 @@
     <div id="site-content">
         
         <header id="main-header">
+            <div class="menu-mobile-btn" onclick="app.toggleMenu()" title="Menu">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+
             <a href="#" class="brand-area" onclick="app.resetAll()">
                 <img src="assets/logo_maya_bay.jpeg" alt="Logo Maya Bay">
                 <h1>Maya Bay</h1>
             </a>
 
-            <nav>
+            <nav id="main-nav">
+                <div class="nav-header-mobile">
+                    <span>CATEGORIAS</span>
+                    <i class="fa-solid fa-xmark" onclick="app.toggleMenu()"></i>
+                </div>
+
                 <ul class="nav-list">
                     <li class="nav-item">
                         <a href="#loja" class="nav-link" onclick="app.filter('feminino')">Feminino</a>
