@@ -42,7 +42,7 @@ header {
     backdrop-filter: blur(12px); /* Efeito vidro fosco */
     -webkit-backdrop-filter: blur(12px);
     height: 90px;
-    padding: 0 5%;
+    padding: 20px 5%;
     position: sticky; top: 0; z-index: 1000;
     display: flex; justify-content: space-between; align-items: center;
     border-bottom: 1px solid rgba(0,0,0,0.03);
@@ -65,7 +65,7 @@ header {
 
 /* Menu Central */
 nav { flex: 1; display: flex; justify-content: center; }
-.nav-list { display: flex; list-style: none; gap: 40px; }
+.nav-list { display: flex; list-style: none; gap: 30px; }
 .nav-item { position: relative; padding: 30px 0; cursor: pointer; }
 
 .nav-link { 
@@ -365,10 +365,84 @@ img {
     border-radius: 4px; /* Opcional: um toque de suavidade */
 }
 
+/* --- CONFIGURAÇÃO PARA PC (Telas Grandes) --- */
+.menu-mobile-btn, .nav-header-mobile {
+    display: none; /* Esconde o botão de menu e o topo do menu no PC */
+}
+
+#main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 5%;
+}
+
+.nav-list {
+    display: flex;
+    gap: 30px;
+    list-style: none;
+}
+
+/* --- RESPONSIVIDADE (Telas de Celular) --- */
+@media (max-width: 768px) {
+    .menu-mobile-btn {
+        display: block; /* Aparece apenas no celular */
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    #main-nav {
+        position: fixed;
+        top: 0;
+        left: -100%; /* Esconde o menu totalmente à esquerda */
+        width: 280px;
+        height: 100vh;
+        background: #fff;
+        z-index: 1000;
+        transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+        display: block; /* Muda de flex para bloco no mobile */
+    }
+
+    /* Quando o menu estiver ativo */
+    #main-nav.active {
+        left: 0;
+    }
+
+    .nav-header-mobile {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 25px;
+        border-bottom: 1px solid #eee;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    .nav-list {
+        flex-direction: column; /* Itens um embaixo do outro */
+        padding: 20px;
+        gap: 0;
+    }
+
+    .nav-list li {
+        border-bottom: 1px solid #f9f9f9;
+    }
+
+    .nav-list li a {
+        display: block;
+        padding: 15px 5px;
+        font-size: 1.1rem;
+    }
+
+    /* Ajuste para a logo não ficar espremida */
+    .brand-area h1 { font-size: 1.2rem; }
+}
+
 /* --- MEDIA QUERIES (AJUSTES POR APARELHO) --- */
 
 /* Tablets e Celulares Grandes (Abaixo de 992px) */
-@media (max-width: 992px) {
+@media (max-width: 768px) {
     .hero h2 { font-size: 2.5rem; }
 }
 
@@ -711,3 +785,4 @@ body.admin-active #site-content {
     color: #666;
     line-height: 1.6;
 }
+
