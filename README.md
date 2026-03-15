@@ -50,17 +50,20 @@ Este repositório contém o **front-end de um site de e-commerce** desenvolvido 
 
 1. Procure neste repositório o link ou copie e cole em seu navegador:
    ```
-   https://talduardo.github.io/hmsolucoes/
+   https://talduardo.github.io/maya/
    ```
  
 ---
 
 ## 📌 Roadmap: 
-- [ ] Criar versão multilíngue da landing page.
+- [ ] Adicionar carrinho de compras funcional.
 
-- [ ] Implementar animações simples em CSS.
+- [ ] Implementar integração com sistemas de pagamento.
 
-- [ ] Otimizar SEO para fins de aprendizado.
+- [ ] Criar seção de cadastro/login de clientes.
+
+- [ ] Otimizar SEO para maior alcance orgânico.
+
 ---
 
 ## 👨‍💻 Autor
