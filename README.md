@@ -4,7 +4,7 @@ Este repositório contém o **front-end de um site de e-commerce** desenvolvido 
 
 ---
 
-## 📂 Estrutura do Projeto
+## 📂 Estrutura do Projeto:
 
 - **index.html** → Página inicial do e-commerce, estruturada para navegação clara e responsiva.  
 - **css/** → Estilos customizados para layout, tipografia e responsividade.  
@@ -14,7 +14,7 @@ Este repositório contém o **front-end de um site de e-commerce** desenvolvido 
 
 ---
 
-## 🎯 Objetivos
+## 🎯 Objetivos:
 
 - Criar uma interface **responsiva e amigável** para usuários.  
 - Implementar **funcionalidades essenciais** de um e-commerce (menu, autenticação, exibição de produtos).  
@@ -22,7 +22,7 @@ Este repositório contém o **front-end de um site de e-commerce** desenvolvido 
 
 ---
 
-## 🚀 Funcionalidades
+## 🚀 Funcionalidades:
 
 - **Menu responsivo** para navegação em dispositivos móveis.  
 - **Autenticação de usuários** integrada ao front-end.  
@@ -32,7 +32,7 @@ Este repositório contém o **front-end de um site de e-commerce** desenvolvido 
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Tecnologias Utilizadas:
 
 - **HTML5** → Estrutura semântica e acessível.  
 - **CSS3** → Estilização responsiva e moderna.  
@@ -48,22 +48,19 @@ Este repositório contém o **front-end de um site de e-commerce** desenvolvido 
 
 ## 📖 Como Visualizar: 
 
-1. Clone este repositório:
+1. Procure neste repositório o link ou copie e cole em seu navegador:
    ```
-   clique no link 
+   https://talduardo.github.io/hmsolucoes/
    ```
-
+ 
 ---
 
-## 📈 Roadmap
-- [ ] Integração com API de back-end para carrinho e pedidos.
+## 📌 Roadmap: 
+- [ ] Criar versão multilíngue da landing page.
 
-- [ ] Implementação de sistema de pagamento.
+- [ ] Implementar animações simples em CSS.
 
-- [ ] Adição de filtros e busca avançada de produtos.
-
-- [ ] Otimização de performance e SEO.
-
+- [ ] Otimizar SEO para fins de aprendizado.
 ---
 
 ## 👨‍💻 Autor
